@@ -4,6 +4,18 @@
 # Dependencies
 node_modules/
 
+# TypeScript build output
+dist/
+*.tsbuildinfo
+
+# Deployment
+discord-bot-deploy.tar.gz
+deploy/
+
+# Docker
+discord-cube-bot-image.tar.gz
+discord-cube-bot.tar
+
 # Logs
 logs
 *.log
@@ -20,3 +32,6 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# Claude Code
+.claude/

@@ -2,12 +2,19 @@
   "name": "discord-bot",
   "version": "1.0.0",
   "description": "A Discord.js bot boilerplate",
-  "main": "bot.js",
+  "main": "dist/bot.js",
   "scripts": {
-    "start": "node bot.js",
-    "dev": "nodemon bot.js"
+    "build": "tsc",
+    "start": "npm run build && node dist/bot.js",
+    "dev": "ts-node src/bot.ts",
+    "watch": "nodemon --exec ts-node src/bot.ts",
+    "deploy": "ts-node src/deploy-commands.ts"
   },
-  "keywords": ["discord", "bot", "discord.js"],
+  "keywords": [
+    "discord",
+    "bot",
+    "discord.js"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
@@ -16,6 +23,9 @@
     "googleapis": "^128.0.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.3"
+    "@types/node": "^25.2.3",
+    "nodemon": "^3.0.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   }
 }

@@ -1,0 +1,45 @@
+# Source files (we only need compiled dist/)
+src/
+*.ts
+tsconfig.json
+
+# Dependencies (will be installed in container)
+node_modules/
+
+# Environment
+.env
+.env.default
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+DEPLOYMENT.md
+README.md
+
+# Build artifacts
+*.tsbuildinfo
+
+# Deployment
+deploy/
+discord-bot-deploy.tar.gz
+deploy.sh
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Testing
+test/
+*.test.js
+*.spec.js
