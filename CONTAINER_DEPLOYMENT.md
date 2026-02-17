@@ -22,7 +22,7 @@ This guide shows how to deploy the Discord bot using Docker in QNAP Container St
 npm run build
 
 # Build the Docker image
-docker build -t discord-cube-bot .
+docker build --platform linux/amd64 -t discord-cube-bot .
 
 # Save the image as a tar file
 docker save discord-cube-bot:latest | gzip > discord-cube-bot-image.tar.gz
@@ -84,7 +84,7 @@ docker-compose ps
 
 ```bash
 npm run build
-docker build -t discord-cube-bot .
+docker build --platform linux/amd64 -t discord-cube-bot .
 docker save discord-cube-bot:latest -o discord-cube-bot.tar
 ```
 
@@ -133,7 +133,7 @@ cp .env.default .env
 vi .env  # Configure your secrets
 
 # Build the image
-docker build -t discord-cube-bot .
+docker build --platform linux/amd64 -t discord-cube-bot .
 
 # Run the container
 docker run -d \
@@ -177,7 +177,7 @@ Containers → discord-cube-bot → Stop
 ```bash
 # 1. Build new image locally
 npm run build
-docker build -t discord-cube-bot .
+docker build --platform linux/amd64 -t discord-cube-bot .
 docker save discord-cube-bot:latest | gzip > discord-cube-bot-image.tar.gz
 
 # 2. Transfer to QNAP
@@ -201,6 +201,12 @@ To ensure Container Station starts on boot:
 3. Enable "Enable Container Station on startup"
 
 ## Troubleshooting
+
+### exec format error
+If you see `exec format error`, the image was built for the wrong CPU architecture (e.g. ARM64 on Mac vs x86_64 on QNAP). Rebuild with `--platform linux/amd64`:
+```bash
+docker build --platform linux/amd64 -t discord-cube-bot .
+```
 
 ### Container won't start
 ```bash

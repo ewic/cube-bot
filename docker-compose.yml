@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   discord-bot:
-    build: .
+    image: discord-cube-bot:latest
     container_name: discord-cube-bot
     restart: unless-stopped
     environment:
