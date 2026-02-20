@@ -1,5 +1,5 @@
 import { Client, GatewayIntentBits, Collection, Events, Message, Interaction } from 'discord.js';
-import sheetsService from './services/sheets';
+import cobraService from './services/cobra';
 import { Card } from './interfaces';
 import * as dotenv from 'dotenv';
 
@@ -38,48 +38,41 @@ client.on(Events.MessageCreate, async (message: Message) => {
   if (message.content === '!help') {
     const helpText = `**📖 Available Commands**\n\n` +
       `**!ping** - Check bot latency\n` +
-      `**!sheet** - Read all data from Google Sheets (preview only)\n` +
+      `**!cube** - Read all card data from CubeCobra (preview only)\n` +
       `**!buylist** - Show cards that are not owned (sends full list via DM)\n` +
       `**!status <card name>** - Check the status of a specific card\n` +
       `**!pack [count]** - Generate a random pack of cards (default: 15, max: 50)\n` +
       `**!help** - Show this help message\n\n` +
-      `*Tip: All commands also work as slash commands (e.g., /ping, /sheet, etc.)*`;
+      `*Tip: All commands also work as slash commands (e.g., /ping, /cube, etc.)*`;
 
     message.reply(helpText);
   }
 
-  // Read Google Sheets command
-  if (message.content.startsWith('!sheet')) {
+  // Read cube data from CubeCobra
+  if (message.content.startsWith('!cube')) {
     try {
-      await message.reply('📊 Reading sheet data...');
+      await message.reply('🔮 Fetching cube data from CubeCobra...');
 
-      const spreadsheetId = process.env.SPREADSHEET_ID;
-      const range = 'List!A:F'; // Read columns A to F
-
-      if (!spreadsheetId) {
-        return message.reply('❌ SPREADSHEET_ID not configured in environment variables.');
-      }
-
-      const cards: Card[] = await sheetsService.readCards(spreadsheetId, range);
+      const cards: Card[] = await cobraService.readCards();
 
       if (cards.length === 0) {
-        return message.reply('❌ No data found in the sheet.');
+        return message.reply('❌ No cards found in the cube.');
       }
 
       // Store the complete data as JSON array
       const jsonData = JSON.stringify(cards, null, 2);
-      console.log('Sheet data (JSON):', jsonData);
+      console.log('Cube data (JSON):', jsonData);
 
       // Format the data for Discord (showing first 5 cards)
       const preview = cards.slice(0, 5).map((card, index) => {
         return `${index + 1}. **${card.name}** (MV: ${card.MV}) - ${card.type} | ${card.color} | ${card.set} | ${card.status}`;
       }).join('\n');
 
-      message.reply(`✅ Found ${cards.length} cards (columns A-F):\n\n${preview}${cards.length > 5 ? '\n\n... and more' : ''}\n\n*Full JSON logged to console*`);
+      message.reply(`✅ Found ${cards.length} cards in cube:\n\n${preview}${cards.length > 5 ? '\n\n... and more' : ''}\n\n*Full JSON logged to console*`);
 
     } catch (error) {
-      console.error('Error reading sheet:', error);
-      message.reply('❌ Failed to read sheet. Check your credentials and permissions.');
+      console.error('Error reading cube:', error);
+      message.reply('❌ Failed to read cube from CubeCobra. Check your CUBECOBRA_ID.');
     }
   }
 
@@ -88,17 +81,10 @@ client.on(Events.MessageCreate, async (message: Message) => {
     try {
       await message.reply('🛒 Reading buylist...');
 
-      const spreadsheetId = process.env.SPREADSHEET_ID;
-      const range = 'List!A:F'; // Read columns A to F
-
-      if (!spreadsheetId) {
-        return message.reply('❌ SPREADSHEET_ID not configured in environment variables.');
-      }
-
-      const cards: Card[] = await sheetsService.readCards(spreadsheetId, range);
+      const cards: Card[] = await cobraService.readCards();
 
       if (cards.length === 0) {
-        return message.reply('❌ No data found in the sheet.');
+        return message.reply('❌ No cards found in the cube.');
       }
 
       // Filter cards where status is blank or not 'owned'
@@ -166,7 +152,7 @@ client.on(Events.MessageCreate, async (message: Message) => {
 
     } catch (error) {
       console.error('Error reading buylist:', error);
-      message.reply('❌ Failed to read buylist. Check your credentials and permissions.');
+      message.reply('❌ Failed to read buylist. Check your CUBECOBRA_ID.');
     }
   }
 
@@ -179,24 +165,17 @@ client.on(Events.MessageCreate, async (message: Message) => {
         return message.reply('❌ Please provide a card name. Usage: `!status <card name>`');
       }
 
-      const spreadsheetId = process.env.SPREADSHEET_ID;
-      const range = 'List!A:F'; // Read columns A to F
-
-      if (!spreadsheetId) {
-        return message.reply('❌ SPREADSHEET_ID not configured in environment variables.');
-      }
-
-      const cards: Card[] = await sheetsService.readCards(spreadsheetId, range);
+      const cards: Card[] = await cobraService.readCards();
 
       if (cards.length === 0) {
-        return message.reply('❌ No data found in the sheet.');
+        return message.reply('❌ No cards found in the cube.');
       }
 
       // Search for card by name (case-insensitive)
       const foundCard = cards.find(card => card.name.toLowerCase() === cardName.toLowerCase());
 
       if (!foundCard) {
-        return message.reply(`❌ **${cardName}** is not on the list.`);
+        return message.reply(`❌ **${cardName}** is not in the cube.`);
       }
 
       // Format the response
@@ -226,17 +205,10 @@ client.on(Events.MessageCreate, async (message: Message) => {
         return message.reply('❌ Please provide a valid number between 1 and 50.');
       }
 
-      const spreadsheetId = process.env.SPREADSHEET_ID;
-      const range = 'List!A:F'; // Read columns A to F
-
-      if (!spreadsheetId) {
-        return message.reply('❌ SPREADSHEET_ID not configured in environment variables.');
-      }
-
-      const cards: Card[] = await sheetsService.readCards(spreadsheetId, range);
+      const cards: Card[] = await cobraService.readCards();
 
       if (cards.length === 0) {
-        return message.reply('❌ No data found in the sheet.');
+        return message.reply('❌ No cards found in the cube.');
       }
 
       // Randomly select cards
@@ -256,6 +228,7 @@ client.on(Events.MessageCreate, async (message: Message) => {
       message.reply('❌ Failed to generate pack. Please try again.');
     }
   }
+
 });
 
 // Slash command handler
@@ -271,48 +244,41 @@ client.on(Events.InteractionCreate, async (interaction: Interaction) => {
   if (interaction.commandName === 'help') {
     const helpText = `**📖 Available Commands**\n\n` +
       `**/ping** - Check bot latency\n` +
-      `**/sheet** - Read all data from Google Sheets (preview only)\n` +
+      `**/cube** - Read all card data from CubeCobra (preview only)\n` +
       `**/buylist** - Show cards that are not owned (sends full list via DM)\n` +
       `**/status <name>** - Check the status of a specific card\n` +
       `**/pack [count]** - Generate a random pack of cards (default: 15, max: 50)\n` +
       `**/help** - Show this help message\n\n` +
-      `*You can also use text commands with ! prefix (e.g., !ping, !sheet)*`;
+      `*You can also use text commands with ! prefix (e.g., !ping, !cube)*`;
 
     await interaction.reply(helpText);
   }
 
-  // Handle sheet slash command
-  if (interaction.commandName === 'sheet') {
+  // Handle cube slash command
+  if (interaction.commandName === 'cube') {
     await interaction.deferReply();
 
     try {
-      const spreadsheetId = process.env.SPREADSHEET_ID;
-      const range = 'List!A:F'; // Read columns A to F
-
-      if (!spreadsheetId) {
-        return interaction.editReply('❌ SPREADSHEET_ID not configured in environment variables.');
-      }
-
-      const cards: Card[] = await sheetsService.readCards(spreadsheetId, range);
+      const cards: Card[] = await cobraService.readCards();
 
       if (cards.length === 0) {
-        return interaction.editReply('❌ No data found in the sheet.');
+        return interaction.editReply('❌ No cards found in the cube.');
       }
 
       // Store the complete data as JSON array
       const jsonData = JSON.stringify(cards, null, 2);
-      console.log('Sheet data (JSON):', jsonData);
+      console.log('Cube data (JSON):', jsonData);
 
       // Format the data for Discord (showing first 5 cards)
       const preview = cards.slice(0, 5).map((card, index) => {
         return `${index + 1}. **${card.name}** (MV: ${card.MV}) - ${card.type} | ${card.color} | ${card.set} | ${card.status}`;
       }).join('\n');
 
-      await interaction.editReply(`✅ Found ${cards.length} cards (columns A-F):\n\n${preview}${cards.length > 5 ? '\n\n... and more' : ''}\n\n*Full JSON logged to console*`);
+      await interaction.editReply(`✅ Found ${cards.length} cards in cube:\n\n${preview}${cards.length > 5 ? '\n\n... and more' : ''}\n\n*Full JSON logged to console*`);
 
     } catch (error) {
-      console.error('Error reading sheet:', error);
-      await interaction.editReply('❌ Failed to read sheet. Check your credentials and permissions.');
+      console.error('Error reading cube:', error);
+      await interaction.editReply('❌ Failed to read cube from CubeCobra. Check your CUBECOBRA_ID.');
     }
   }
 
@@ -321,17 +287,10 @@ client.on(Events.InteractionCreate, async (interaction: Interaction) => {
     await interaction.deferReply();
 
     try {
-      const spreadsheetId = process.env.SPREADSHEET_ID;
-      const range = 'List!A:F'; // Read columns A to F
-
-      if (!spreadsheetId) {
-        return interaction.editReply('❌ SPREADSHEET_ID not configured in environment variables.');
-      }
-
-      const cards: Card[] = await sheetsService.readCards(spreadsheetId, range);
+      const cards: Card[] = await cobraService.readCards();
 
       if (cards.length === 0) {
-        return interaction.editReply('❌ No data found in the sheet.');
+        return interaction.editReply('❌ No cards found in the cube.');
       }
 
       // Filter cards where status is blank or not 'owned'
@@ -399,7 +358,7 @@ client.on(Events.InteractionCreate, async (interaction: Interaction) => {
 
     } catch (error) {
       console.error('Error reading buylist:', error);
-      await interaction.editReply('❌ Failed to read buylist. Check your credentials and permissions.');
+      await interaction.editReply('❌ Failed to read buylist. Check your CUBECOBRA_ID.');
     }
   }
 
@@ -414,24 +373,17 @@ client.on(Events.InteractionCreate, async (interaction: Interaction) => {
         return interaction.editReply('❌ Please provide a card name.');
       }
 
-      const spreadsheetId = process.env.SPREADSHEET_ID;
-      const range = 'List!A:F'; // Read columns A to F
-
-      if (!spreadsheetId) {
-        return interaction.editReply('❌ SPREADSHEET_ID not configured in environment variables.');
-      }
-
-      const cards: Card[] = await sheetsService.readCards(spreadsheetId, range);
+      const cards: Card[] = await cobraService.readCards();
 
       if (cards.length === 0) {
-        return interaction.editReply('❌ No data found in the sheet.');
+        return interaction.editReply('❌ No cards found in the cube.');
       }
 
       // Search for card by name (case-insensitive)
       const foundCard = cards.find(card => card.name.toLowerCase() === cardName.toLowerCase());
 
       if (!foundCard) {
-        return interaction.editReply(`❌ **${cardName}** is not on the list.`);
+        return interaction.editReply(`❌ **${cardName}** is not in the cube.`);
       }
 
       // Format the response
@@ -462,17 +414,10 @@ client.on(Events.InteractionCreate, async (interaction: Interaction) => {
         return interaction.editReply('❌ Please provide a valid number between 1 and 50.');
       }
 
-      const spreadsheetId = process.env.SPREADSHEET_ID;
-      const range = 'List!A:F'; // Read columns A to F
-
-      if (!spreadsheetId) {
-        return interaction.editReply('❌ SPREADSHEET_ID not configured in environment variables.');
-      }
-
-      const cards: Card[] = await sheetsService.readCards(spreadsheetId, range);
+      const cards: Card[] = await cobraService.readCards();
 
       if (cards.length === 0) {
-        return interaction.editReply('❌ No data found in the sheet.');
+        return interaction.editReply('❌ No cards found in the cube.');
       }
 
       // Randomly select cards

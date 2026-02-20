@@ -13,8 +13,8 @@ const commands = [
     description: 'Replies with bot latency',
   },
   {
-    name: 'sheet',
-    description: 'Read data from Google Sheets',
+    name: 'cube',
+    description: 'Read card data from CubeCobra',
   },
   {
     name: 'buylist',
