@@ -1,6 +1,6 @@
 import { google } from 'googleapis';
 import * as dotenv from 'dotenv';
-import { Card } from './interfaces';
+import { Card } from '../interfaces';
 
 dotenv.config();
 

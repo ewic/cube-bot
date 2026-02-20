@@ -1,5 +1,5 @@
 import { Client, GatewayIntentBits, Collection, Events, Message, Interaction } from 'discord.js';
-import sheetsService from './sheets';
+import sheetsService from './services/sheets';
 import { Card } from './interfaces';
 import * as dotenv from 'dotenv';
 
