@@ -34,12 +34,12 @@ Create a directory on your QNAP and transfer files:
 
 ```bash
 # Create deployment directory on QNAP
-ssh admin@YOUR_QNAP_IP "mkdir -p /share/Container/discord-bot"
+ssh admin@YOUR_QNAP_IP "mkdir -p /share/Container/discord-cube-bot"
 
 # Transfer files
-scp discord-cube-bot-image.tar.gz admin@YOUR_QNAP_IP:/share/Container/discord-bot/
-scp docker-compose.yml admin@YOUR_QNAP_IP:/share/Container/discord-bot/
-scp .env.default admin@YOUR_QNAP_IP:/share/Container/discord-bot/
+scp discord-cube-bot-image.tar.gz admin@YOUR_QNAP_IP:/share/Container/discord-cube-bot/
+scp docker-compose.yml admin@YOUR_QNAP_IP:/share/Container/discord-cube-bot/
+scp .env.default admin@YOUR_QNAP_IP:/share/Container/discord-cube-bot/
 ```
 
 ### 3. SSH into QNAP and Setup
